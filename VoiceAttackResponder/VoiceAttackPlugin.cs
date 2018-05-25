@@ -3,6 +3,7 @@ using EddiCargoMonitor;
 using EddiEvents;
 using EddiDataProviderService;
 using EddiDataDefinitions;
+using EddiMissionMonitor;
 using EddiShipMonitor;
 using EddiSpeechResponder;
 using EddiSpeechService;
@@ -523,6 +524,7 @@ namespace EddiVoiceAttackResponder
 
                                 // Bind Cargo monitor inventory & Ship monitor shipyard collections to the EDDI config Window
                                 ((CargoMonitor)EDDI.Instance.ObtainMonitor("Cargo monitor")).EnableConfigBinding(configWindow);
+                                ((MissionMonitor)EDDI.Instance.ObtainMonitor("Mission monitor")).EnableConfigBinding(configWindow);
                                 ((ShipMonitor)EDDI.Instance.ObtainMonitor("Ship monitor")).EnableConfigBinding(configWindow);
 
                                 configWindow = null;
@@ -558,6 +560,7 @@ namespace EddiVoiceAttackResponder
                 case "configurationclose":
                     // Unbind the Cargo Monitor inventory & Ship Monitor shipyard collections from the EDDI config window
                     ((CargoMonitor)EDDI.Instance.ObtainMonitor("Cargo monitor")).DisableConfigBinding(configWindow);
+                    ((MissionMonitor)EDDI.Instance.ObtainMonitor("Mission monitor")).DisableConfigBinding(configWindow);
                     ((ShipMonitor)EDDI.Instance.ObtainMonitor("Ship monitor")).DisableConfigBinding(configWindow);
 
                     configWindow.Dispatcher.Invoke(configWindow.Close);

@@ -1092,7 +1092,6 @@ namespace EddiCargoMonitor
 
         private void CalculateCargoNeed(Cargo cargo)
         {
-            int need = 0;
             if (cargo != null && cargo.haulageamounts != null && cargo.haulageamounts.Any())
             {
                 int haulageNeeded = 0;

@@ -13,9 +13,7 @@ namespace EddiDataDefinitions
         public string status { get; set; }
 
         [JsonIgnore]
-        public bool legal => name.Split('_').ElementAtOrDefault(2)
-            .ToLowerInvariant()
-            .Contains("illegal") ? false : true;
+        public bool legal => name.Contains("illegal") ? false : true;
 
         public int amount { get; set; }
 

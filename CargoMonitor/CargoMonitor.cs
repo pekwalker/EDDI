@@ -185,6 +185,11 @@ namespace EddiCargoMonitor
             {
                 handleLimpetLaunchedEvent((LimpetLaunchedEvent)@event);
             }
+            else if (@event is CargoDepotEvent)
+            {
+                // If cargo is collected or delivered in a wing mission
+                handleCargoDepotEvent((CargoDepotEvent)@event);
+            }
             else if (@event is MissionAbandonedEvent)
             {
                 // If we abandon a mission with cargo it becomes stolen
@@ -309,6 +314,7 @@ namespace EddiCargoMonitor
                         {
                             case "altruism":
                             case "collect":
+                            case "collectwing":
                             case "mining":
                             case "piracy":
                                 {
@@ -383,6 +389,7 @@ namespace EddiCargoMonitor
                         {
                             case "altruism":
                             case "collect":
+                            case "collectwing":
                             case "mining":
                             case "piracy":
                                 {
@@ -394,6 +401,7 @@ namespace EddiCargoMonitor
                                 }
                                 break;
                             case "delivery":
+                            case "deliverywing":
                             case "rescue":
                             case "salvage":
                             case "smuggle":
@@ -605,6 +613,62 @@ namespace EddiCargoMonitor
             }
         }
 
+        private void handleCargoDepotEvent(CargoDepotEvent @event)
+        {
+            _handleCargoDepotEvent(@event);
+            writeInventory();
+        }
+
+        private void _handleCargoDepotEvent(CargoDepotEvent @event)
+        {
+            Mission mission = ((MissionMonitor)EDDI.Instance.ObtainMonitor("Mission monitor")).GetMissionWithMissionId(@event.missionid ?? 0);
+            if (mission != null)
+            {
+                Cargo cargo = GetCargoWithEDName(CommodityDefinition.FromName(mission.commodity).edname);
+                if (cargo != null)
+                {
+                    HaulageAmount haulageAmount = cargo.haulageamounts.FirstOrDefault(ha => ha.id == @event.missionid);
+                    int amountRemaining = @event.totaltodeliver - @event.delivered;
+                    switch (@event.updatetype)
+                    {
+                        case "Collect":
+                            {
+                                if (mission.typeEDName == "CollectWing")
+                                {
+                                    cargo.owned += @event.amount ?? 0;
+                                }
+                                else if (mission.typeEDName == "DeliveryWing")
+                                {
+                                    cargo.haulage += @event.amount ?? 0;
+                                }
+                                CalculateCargoNeed(cargo);
+                            }
+                            break;
+                        case "Deliver":
+                            {
+                                if (mission.typeEDName == "CollectWing")
+                                {
+                                    cargo.owned -= @event.amount ?? 0;
+                                }
+                                else if (mission.typeEDName == "DeliveryWing")
+                                {
+                                    cargo.haulage -= @event.amount ?? 0;
+                                }
+                                haulageAmount.amount = amountRemaining;
+                                CalculateCargoNeed(cargo);
+                            }
+                            break;
+                        case "WingUpdate":
+                            {
+                                haulageAmount.amount = amountRemaining;
+                                CalculateCargoNeed(cargo);
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
         private void handleMissionAbandonedEvent(MissionAbandonedEvent @event)
         {
             _handleMissionAbandonedEvent(@event);
@@ -622,6 +686,7 @@ namespace EddiCargoMonitor
                     switch (type)
                     {
                         case "delivery":
+                        case "deliverywing":
                         case "rescue":
                         case "salvage":
                         case "smuggle":
@@ -666,7 +731,9 @@ namespace EddiCargoMonitor
             {
                 case "altruism":
                 case "collect":
+                case "collectwing":
                 case "delivery":
+                case "deliverywing":
                 case "mining":
                 case "piracy":
                 case "rescue":
@@ -836,6 +903,7 @@ namespace EddiCargoMonitor
                     switch (type)
                     {
                         case "delivery":
+                        case "deliverywing":
                         case "rescue":
                         case "salvage":
                         case "smuggle":
@@ -1108,6 +1176,7 @@ namespace EddiCargoMonitor
                     {
                         case "altruism":
                         case "collect":
+                        case "collectwing":
                         case "mining":
                         case "piracy":
                             {
@@ -1115,6 +1184,7 @@ namespace EddiCargoMonitor
                             }
                             break;
                         case "delivery":
+                        case "deliverywing":
                         case "rescue":
                         case "smuggle":
                             {

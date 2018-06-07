@@ -133,6 +133,8 @@ namespace EddiDataDefinitions
 
         public List<HaulageAmount> haulageamounts { get; set; }
 
+        public List<Haulage> haulageData { get; set; }
+
         [JsonExtensionData]
         private IDictionary<string, JToken> _additionalJsonData;
 
@@ -159,6 +161,7 @@ namespace EddiDataDefinitions
             this.ejected = 0;
             this.need = 0;
             haulageamounts = new List<HaulageAmount>();
+            haulageData = new List<Haulage>();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

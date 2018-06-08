@@ -24,8 +24,8 @@ namespace EddiCargoMonitor
     {
         // Observable collection for us to handle changes
         public ObservableCollection<Cargo> inventory { get; private set; }
+        public int cargoCarried;
 
-        public int cargocarried;
         private static readonly object inventoryLock = new object();
         public event EventHandler InventoryUpdatedEvent;
 
@@ -416,7 +416,6 @@ namespace EddiCargoMonitor
                         cargo.stolen -= @event.amount;
                     }
                 }
-
                 RemoveCargo(cargo);
             }
         }
@@ -614,31 +613,41 @@ namespace EddiCargoMonitor
                     {
                         case "Collect":
                             {
-                                if (haulage.type == "DeliveryWing")
+                                if (haulage.type == "deliverywing")
                                 {
                                     cargo.haulage += @event.amount ?? 0;
                                 }
                                 CalculateCargoNeed(cargo);
+                                haulage.depotcollected = @event.collected;
+                                haulage.depotdelivered = @event.delivered;
                             }
                             break;
                         case "Deliver":
                             {
-                                if (haulage.type == "CollectWing")
+                                if (haulage.type == "collectwing")
                                 {
                                     cargo.owned -= @event.amount ?? 0;
                                 }
-                                else if (haulage.type == "DeliveryWing")
+                                else if (haulage.type == "deliverywing")
                                 {
                                     cargo.haulage -= @event.amount ?? 0;
                                 }
                                 haulage.amount = amountRemaining;
                                 CalculateCargoNeed(cargo);
+                                haulage.depotcollected = @event.collected;
+                                haulage.depotdelivered = @event.delivered;
                             }
                             break;
                         case "WingUpdate":
                             {
                                 haulage.amount = amountRemaining;
                                 CalculateCargoNeed(cargo);
+
+                                int amount = Math.Max(@event.collected - haulage.depotcollected, @event.delivered - haulage.depotdelivered);
+                                string updatetype = @event.collected - haulage.depotcollected > 0 ? "Collect" : "Deliver";
+                                EDDI.Instance.eventHandler(new CargoWingUpdateEvent(DateTime.Now, haulage.missionid, updatetype, cargo.commodityDef, amount));
+                                haulage.depotcollected = @event.collected;
+                                haulage.depotdelivered = @event.delivered;
                             }
                             break;
                     }
@@ -813,7 +822,6 @@ namespace EddiCargoMonitor
                 {
                     cargo.owned -= @event.amount ?? 0;
                 }
-
                 RemoveCargo(cargo);
             }
 
@@ -1001,7 +1009,8 @@ namespace EddiCargoMonitor
         {
             IDictionary<string, object> variables = new Dictionary<string, object>
             {
-                ["inventory"] = new List<Cargo>(inventory)
+                ["inventory"] = new List<Cargo>(inventory),
+                ["cargoCarried"] = cargoCarried
             };
             return variables;
         }
@@ -1012,14 +1021,14 @@ namespace EddiCargoMonitor
             {
                 // Write cargo configuration with current inventory
                 CargoMonitorConfiguration configuration = new CargoMonitorConfiguration();
-                cargocarried = 0;
+                cargoCarried = 0;
                 foreach (Cargo cargo in inventory)
                 {
-                    cargocarried += cargo.total;
+                    cargoCarried += cargo.total;
                 }
-                EDDI.Instance.eventHandler(new CargoUpdatedEvent(DateTime.Now, cargocarried));
+                EDDI.Instance.eventHandler(new CargoUpdatedEvent(DateTime.Now, cargoCarried));
                 configuration.cargo = inventory;
-                configuration.cargocarried = cargocarried;
+                configuration.cargocarried = cargoCarried;
                 configuration.ToFile();
             }
             // Make sure the UI is up to date
@@ -1032,7 +1041,7 @@ namespace EddiCargoMonitor
             {
                 // Obtain current cargo inventory from configuration
                 configuration = configuration ?? CargoMonitorConfiguration.FromFile();
-                cargocarried = configuration.cargocarried;
+                cargoCarried = configuration.cargocarried;
 
                 // Build a new inventory
                 List<Cargo> newInventory = new List<Cargo>();

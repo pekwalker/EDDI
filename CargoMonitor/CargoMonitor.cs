@@ -224,6 +224,10 @@ namespace EddiCargoMonitor
             {
                 handleTechnologyBrokerEvent((TechnologyBrokerEvent)@event);
             }
+            else if (@event is DiedEvent)
+            {
+                handleDiedEvent((DiedEvent)@event);
+            }
         }
 
         private void handleCargoInventoryEvent(CargoInventoryEvent @event)
@@ -1097,6 +1101,12 @@ namespace EddiCargoMonitor
                     RemoveCargo(cargo);
                 }
             }
+        }
+
+        private void handleDiedEvent(DiedEvent @event)
+        {
+            inventory.Clear();
+            writeInventory();
         }
 
         public IDictionary<string, object> GetVariables()

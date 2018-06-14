@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace EddiDataDefinitions
@@ -170,6 +171,52 @@ namespace EddiDataDefinitions
         {
             this.total = this.stolen + this.haulage + this.owned;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
+        }
+
+        public void CalculateNeed()
+        {
+            if (this != null && this.haulageData != null && this.haulageData.Any())
+            {
+                int haulageNeeded = 0;
+                int ownedNeeded = 0;
+                int stolenNeeded = 0;
+                foreach (Haulage haulage in this.haulageData)
+                {
+                    switch (haulage.type)
+                    {
+                        case "altruism":
+                        case "collect":
+                        case "mining":
+                        case "piracy":
+                            {
+                                ownedNeeded += haulage.amount;
+                            }
+                            break;
+                        case "delivery":
+                        case "rescue":
+                        case "smuggle":
+                            {
+                                haulageNeeded += haulage.amount;
+                            }
+                            break;
+                        case "salvage":
+                            {
+                                if (haulage.legal)
+                                {
+                                    haulageNeeded += haulage.amount;
+                                }
+                                else
+                                {
+                                    stolenNeeded += haulage.amount;
+                                }
+                            }
+                            break;
+                    }
+                }
+                this.need = (haulageNeeded > this.haulage) ? haulageNeeded - this.haulage : 0;
+                this.need += (ownedNeeded > this.owned) ? ownedNeeded - this.owned : 0;
+                this.need += (stolenNeeded > this.stolen) ? stolenNeeded - this.stolen : 0;
+            }
         }
     }
 }

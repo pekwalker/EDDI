@@ -186,6 +186,7 @@ namespace EddiDataDefinitions
                     {
                         case "altruism":
                         case "collect":
+                        case "collectwing":
                         case "mining":
                         case "piracy":
                             {
@@ -193,6 +194,7 @@ namespace EddiDataDefinitions
                             }
                             break;
                         case "delivery":
+                        case "deliverywing":
                         case "rescue":
                         case "smuggle":
                             {

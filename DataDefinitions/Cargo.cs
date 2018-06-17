@@ -150,6 +150,7 @@ namespace EddiDataDefinitions
 
             _additionalJsonData = null;
         }
+        public Cargo() { }
 
         [JsonConstructor]
         public Cargo(string edname, int total, int? price = null)

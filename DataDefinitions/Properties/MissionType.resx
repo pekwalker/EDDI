@@ -126,6 +126,9 @@
   <data name="Assassinate" xml:space="preserve">
     <value>Assassination</value>
   </data>
+  <data name="AssassinateWing" xml:space="preserve">
+    <value>Wing Assassination</value>
+  </data>
   <data name="Collect" xml:space="preserve">
     <value>Collection</value>
   </data>
@@ -152,6 +155,9 @@
   </data>
   <data name="Massacre" xml:space="preserve">
     <value>Massacre</value>
+  </data>
+  <data name="MassacreWing" xml:space="preserve">
+    <value>Wing Massacre</value>
   </data>
   <data name="Mining" xml:space="preserve">
     <value>Mining</value>

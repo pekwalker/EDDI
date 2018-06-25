@@ -2289,6 +2289,14 @@ namespace EddiJournalMonitor
                                 handled = true;
                                 break;
                             }
+                        case "CommunityGoalDiscard":
+                            {
+                                long cgid = JsonParsing.getLong(data, "CGID");
+
+                                events.Add(new MissionAbandonedEvent(timestamp, cgid, "MISSION_CommunityGoal"));
+                                handled = true;
+                                break;
+                            }
                         case "CommunityGoalReward":
                             {
                                 object val;
@@ -2391,9 +2399,8 @@ namespace EddiJournalMonitor
                                 int collected = JsonParsing.getInt(data, "ItemsCollected");
                                 int delivered = JsonParsing.getInt(data, "ItemsDelivered");
                                 int totaltodeliver = JsonParsing.getInt(data, "TotalItemsToDeliver");
-                                decimal progress = JsonParsing.getDecimal(data, "Progress");
 
-                                events.Add(new CargoDepotEvent(timestamp, missionid, updatetype, commodity, amount, startmarketid, endmarketid, collected, delivered, totaltodeliver, progress) { raw = line });
+                                events.Add(new CargoDepotEvent(timestamp, missionid, updatetype, commodity, amount, startmarketid, endmarketid, collected, delivered, totaltodeliver) { raw = line });
                                 handled = true;
                                 break;
                             }

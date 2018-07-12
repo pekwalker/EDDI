@@ -430,6 +430,11 @@ namespace EddiJournalMonitor
                                         {
                                             health = Math.Round(health);
                                         }
+
+                                        //Check if module is engineered
+                                        moduleData.TryGetValue("Engineering", out val);
+                                        bool modified = val != null ? true : false;
+
                                         // Some built-in modules don't give "Value" keys in the Loadout event. We'll set them to zero to match the Frontier API.
                                         long price = JsonParsing.getOptionalLong(moduleData, "Value") ?? 0; 
 
@@ -473,6 +478,7 @@ namespace EddiJournalMonitor
                                                 module.enabled = enabled;
                                                 module.priority = priority;
                                                 module.health = health;
+                                                module.modified = modified;
                                                 module.price = price;
                                                 module.clipcapacity = clip;
                                                 module.hoppercapacity = hopper;
@@ -532,6 +538,7 @@ namespace EddiJournalMonitor
                                                 module.enabled = enabled;
                                                 module.priority = priority;
                                                 module.health = health;
+                                                module.modified = modified;
                                                 module.price = price;
                                                 compartment.module = module;
                                                 compartments.Add(compartment);
@@ -2343,7 +2350,6 @@ namespace EddiJournalMonitor
                                         }
                                         else
                                         {
-
                                             missions.Add(newMission);
                                         }
                                     }
